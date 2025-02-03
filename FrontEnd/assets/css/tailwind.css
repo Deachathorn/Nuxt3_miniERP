@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Kanit&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    body {
+        @apply font-kanit
+    }
+
+    .btn {
+        @apply bg-indigo-600 text-white px-3 py-2 rounded-md text-sm shadow-md
+    }
+
+    .card {
+        @apply p-3 rounded-md bg-[#202528] shadow-xl
+    }
+
+    .form-control {
+        @apply appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-200
+        placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500
+        focus:z-10 sm:text-sm
+    }
+
+    .btn-full {
+        @apply relative w-full flex justify-center px-4 py-4 border border-transparent text-lg font-medium rounded-md
+        text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-offset-2 focus:ring-indigo-500
+    }
+
+    /* Sidebar */
+    .sidebar {
+        @apply w-64 h-screen bg-gray-800 text-white
+    }
+
+    .sidebar-title {
+        @apply text-center text-white text-sm bg-gray-900 p-4 border-b border-gray-500
+    }
+
+    .sidebar-avatar {
+        @apply mt-0 p-4 bg-gray-900
+    }
+
+    .sidebar-menu {
+        @apply p-4
+    }
+
+    /* Navbar */
+    .nav-link {
+        @apply text-gray-300 p-2 rounded-md hover:bg-gray-700 block
+    }
+
+    .nav-link-i, .icon {
+        @apply mr-2 w-4 text-center
+    }
+
+    /* Modal */
+    .modal-title {
+        @apply font-bold
+    }
+
+    .modal-body {
+        @apply font-bold
+    }
+
+    /* Table */
+    .table {
+        @apply w-full mb-3 shadow-md shadow-gray-400
+    }
+
+    .table thead th:first-child {
+        @apply rounded-tl-xl
+    }
+
+    .table thead th:last-child {
+        @apply rounded-tr-xl
+    }
+
+    .table thead {
+        @apply bg-gray-800 text-white
+    }
+
+    .table thead th {
+        @apply px-4 py-2
+    }
+
+    .table tbody tr {
+        @apply bg-gray-50 border-b border-gray-200
+    }
+
+    .table tbody tr td {
+        @apply px-3 py-2
+    }
+
+    .table tbody tr:last-child {
+        @apply border-0
+    }
+
+    /* Button */
+    .btn-danger {
+        @apply bg-red-500 hover:bg-red-700
+    }
+
+    .btn-primary {
+        @apply bg-blue-500 hover:bg-blue-700
+    }
+
+    /* Active Menu */
+    .active {
+        @apply bg-gray-400 text-gray-900 hover:bg-gray-400 hover:text-gray-900
+    }
+
+    .title {
+        @apply rounded-tl-xl rounded-tr-xl mb-3 pb-3 bg-gradient-to-b from-gray-800 to-gray-500 text-white p-4
+    }
+
+    .from-date {
+        @apply text-left w-[63px] py-2
+    }
+
+    .to-date {
+        @apply text-right w-[100px] py-2 pr-2
+    }
+
+    .form-control-report {
+        @apply w-[200px] border-2 border-gray-500 rounded-md px-2
+    }
+}

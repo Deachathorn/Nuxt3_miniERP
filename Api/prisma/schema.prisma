@@ -1,0 +1,121 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  username  String
+  email     String
+  password  String
+  level     String @default("admin")
+  status    String @default("active")
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model ProductType {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  remark    String?
+  status    String @default("active")
+  Product   Product[]
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model Material {
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  unit            String
+  price           Int
+  remark          String?
+  status          String @default("active")
+  createdAt       DateTime? @default(now())
+  updatedAt       DateTime? @updatedAt
+  StockMaterial   StockMaterial[]
+  ProductFormular ProductFormular[]
+}
+
+model StockMaterial {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  materialId String @db.ObjectId
+  quantity   Int
+  price      Int
+  remark     String?
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+  Material   Material? @relation(fields: [materialId], references: [id])
+}
+
+model Packaging {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  remark    String?
+  status    String @default("active")
+  Product   Product[]
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model Product {
+  id              String @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  remark          String?
+  status          String @default("active")
+  packagingId     String? @db.ObjectId
+  Packaging       Packaging? @relation(fields: [packagingId], references: [id])
+  productTypeId   String? @db.ObjectId
+  ProductType     ProductType? @relation(fields: [productTypeId], references: [id])
+  createdAt       DateTime? @default(now())
+  updatedAt       DateTime? @updatedAt
+  ProductFormular ProductFormular[]
+  ProductionPlan  ProductionPlan[]
+}
+
+model ProductFormular {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  productId   String @db.ObjectId
+  materialId  String @db.ObjectId
+  quantity    Float
+  status      String @default("active")
+  remark      String?
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+  product     Product @relation(fields: [productId], references: [id])
+  Material    Material @relation(fields: [materialId], references: [id])
+}
+
+model ProductionPlan {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  productId   String @db.ObjectId
+  quantity    Int
+  status      String @default("active")
+  remark      String?
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+  Product     Product? @relation(fields: [productId], references: [id])
+  Production  Production[]
+}
+
+model Production {
+  id               String @id @default(auto()) @map("_id") @db.ObjectId
+  productionPlanId String @db.ObjectId
+  quantity         Int
+  status           String @default("active")
+  remark           String?
+  createdAt        DateTime? @default(now())
+  updatedAt        DateTime? @updatedAt
+  ProductionPlan   ProductionPlan? @relation(fields: [productionPlanId], references: [id])
+}
