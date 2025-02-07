@@ -143,7 +143,6 @@ module.exports = {
                     const oldFilePath = path.join(process.cwd(), '/uploads/' + oldUser.profilePic)
                     if (fs.existsSync(oldFilePath)) {
                         fs.unlinkSync(oldFilePath)
-                        console.log("remove: ", oldUser.profilePic)
                     }
                 }
                 filePath = req.file.filename
