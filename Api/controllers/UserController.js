@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv")
 const bcrypt = require("bcrypt")
 const Joi = require("joi")
+const path = require("path")
+const fs = require("fs")
 
 dotenv.config()
 
@@ -20,7 +22,15 @@ const userSchema = Joi.object({
     password: Joi.string().required()
 })
 
-const updateSchema = userSchema
+const updateSchema = Joi.object({
+    name: Joi.string().required(),
+    username: Joi.string().required(),
+    email: Joi.string().email().required(),
+    profile_img: Joi.any().optional(),
+    level: Joi.string().required(),
+    password: Joi.any().optional()
+})
+
 const createSchema = userSchema
 const updateUsers = userSchema
 
@@ -92,6 +102,7 @@ module.exports = {
                     name: true,
                     username: true,
                     email: true,
+                    profilePic: true,
                     level: true
                 },
                 where: {
@@ -116,19 +127,26 @@ module.exports = {
 
             await emailValidator(req.body.email, payload.id)
 
-            const password = await bcrypt.hash(req.body.password, 10)
-            let oldPassword = ''
+            let password = req.body.password ? await bcrypt.hash(req.body.password, 10) : null
+            let oldPassword = password
 
-            if(password){
-                oldPassword = password
-            }
-            else{
-                const oldUser = await prisma.user.findUnique({
-                    where: {
-                        id: payload.id
+            const oldUser = await prisma.user.findUnique({
+                where: {id: payload.id}
+            })
+
+            if (!password) oldPassword = oldUser.password
+
+            let filePath = oldUser.profilePic
+
+            if (req.file) {
+                if (oldUser.profilePic) {
+                    const oldFilePath = path.join(process.cwd(), '/uploads/' + oldUser.profilePic)
+                    if (fs.existsSync(oldFilePath)) {
+                        fs.unlinkSync(oldFilePath)
+                        console.log("remove: ", oldUser.profilePic)
                     }
-                })
-                oldPassword = oldUser.password
+                }
+                filePath = req.file.filename
             }
 
             await prisma.user.update({
@@ -139,6 +157,7 @@ module.exports = {
                     name: req.body.name,
                     username: req.body.username,
                     email: req.body.email,
+                    profilePic: filePath,
                     level: req.body.level,
                     password: oldPassword
                 }

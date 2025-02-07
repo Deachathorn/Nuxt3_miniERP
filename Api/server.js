@@ -2,6 +2,7 @@ const express = require("express")
 const app = express()
 const cors = require("cors")
 const bodyParser = require("body-parser")
+const upload = require('./multerConfig').upload
 
 const userController = require("./controllers/UserController")
 const productTypeController = require("./controllers/ProductTypeController")
@@ -17,6 +18,7 @@ const reportController = require("./controllers/ReportController")
 app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+app.use("/uploads", express.static("uploads"))
 
 //user
 app.get("/api/user/list", userController.list)
@@ -26,7 +28,7 @@ app.delete("/api/user/remove/:id", userController.remove)
 
 app.get("/api/user/info", userController.info)
 app.post("/api/user/signIn", userController.signIn)
-app.put("/api/user/update", userController.update)
+app.put("/api/user/update", upload.single("profile_img"), userController.update)
 
 //product type
 app.get("/api/productType/list", productTypeController.list)
@@ -85,6 +87,6 @@ app.post("/api/report/sumProductionPerDayInmonthAndYear", reportController.sumPr
 app.post("/api/report/sumProductionPerMonthAndYear", reportController.sumProductionPerMonthAndYear)
 
 
-app.listen(3001, () => {
+app.listen(3001, '0.0.0.0', () => {
     console.log("Server is running on port 3001")
 })

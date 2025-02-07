@@ -18,6 +18,10 @@
                             <input type="text" class="form-control" v-model="state.email">
                             <span v-if="v$.email.$error" class="text-red-500 text-sm">{{ v$.email.$errors[0].$message }}</span>
 
+                            <div class="mt-3">Profile Picture</div>
+                            <input type="file" class="w-full p-4 bg-cyan-200 rounded-lg" name="profile_img" id="" accept="image/png, image/jpeg" @change="fileChange">
+                            <span v-if="v$.profile_img.$error" class="text-red-500 text-sm">{{ v$.profile_img.$errors[0].$message }}</span>
+
                             <div class="mt-3">Password <span class="text-red-500">(ถ้าต้องการเปลี่ยนกรุณากรอกข้อมูล)</span></div>
                             <input type="password" class="form-control" v-model="state.password">
                             <span v-if="v$.password.$error" class="text-red-500 text-sm">{{ v$.password.$errors[0].$message }}</span>
@@ -51,7 +55,7 @@
     import axios from 'axios'
     import Swal from 'sweetalert2'
     import useVuelidate from '@vuelidate/core'
-    import { required, helpers, sameAs, minLength, email } from '@vuelidate/validators'
+    import { required, helpers, sameAs, minLength, email, requiredIf } from '@vuelidate/validators'
 
     definePageMeta({
         layout: 'admin'
@@ -64,12 +68,25 @@
         return true
     }
 
+    const fileLimit = (file) => helpers.withParams(
+        {type: 'limit', value: file},
+        (event) => {
+            file = event.target.files[0]
+            file.size / 1024 <= 2048
+        }
+    )
+
+    const optional = (value) => {
+        return !helpers.req(value) || value
+    }
+
     const level = ref('admin')
 
     const state = ref({
         name: '',
         username: '',
         email: '',
+        profile_img: null,
         password: '',
         confirmPassword: '',
     })
@@ -85,13 +102,20 @@
             required: helpers.withMessage("Email is required", required),
             email: helpers.withMessage("Email is invalid", email)
         },
+        profile_img: {
+            optional,
+            fileLimit: helpers.withMessage("File size must less than 2MB", fileLimit)
+        },
         password: { 
-            required: helpers.withMessage("Password is required", required),
+            optional,
             minLength: helpers.withMessage("Password must be morethan 8 character", minLength(8)),
-            comPlex: helpers.withMessage("Password too easy", comPlex)
+            comPlex: helpers.withMessage("Password too easy", (value) => {
+                if (!value) return true
+                return comPlex(value)
+            })
         },
         confirmPassword: { 
-            required: helpers.withMessage("ConfirmPassword is required", required),
+            requiredIf: helpers.withMessage("ConfirmPassword is required", requiredIf(state.value.password !== '')),
             sameAs: helpers.withMessage("Password didn't match", sameAs(state.value.password))
         },
     }))
@@ -125,6 +149,11 @@
         }
     }
 
+    const fileChange = (event) => {
+        const file = event.target.files[0]
+        state.value.profile_img = file
+    }
+
     const save = async () => {
         try {
             const token = localStorage.getItem(config.token)
@@ -138,11 +167,15 @@
                     name: state.value.name,
                     username: state.value.username,
                     email: state.value.email,
+                    profile_img: state.value.profile_img,
                     password: state.value.password,
                     level: level.value
                 }
 
-                await axios.put(config.apiServer + '/api/user/update', payload, { headers })
+                const formData = new FormData()
+                Object.entries(payload).forEach(([key, value]) => formData.append(key, value))
+
+                await axios.put(config.apiServer + '/api/user/update', formData, { headers })
 
                 Swal.fire({
                     icon: 'success',

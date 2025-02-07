@@ -4,7 +4,7 @@
         <div class="sidebar-title">NuxtERP 2024</div>
 
         <div class="sidebar-avatar">
-            <img src="https://cdn.pixabay.com/photo/2022/08/19/13/31/woman-7396948_1280.jpg" alt="avatar" class="w-10 h-10 rounded-full mx-auto object-cover" >
+            <img :src="profilePic ? `${config.apiServer}/uploads/` + profilePic : 'https://cdn.pixabay.com/photo/2023/02/18/11/00/icon-7797704_1280.png'" alt="avatar" class="w-10 h-10 rounded-full mx-auto object-cover" >
             <div class="text-center text-white text-sm mt-3">{{level}} : {{name}}</div>
             <div class="text-center mt-3 flex justify-center gap-2">
                 <button class="btn btn-danger text-xs" @click="signOut()">
@@ -69,6 +69,7 @@
     const activeMenu = ref('')
     const name = ref('')
     const level = ref('')
+    const profilePic = ref('')
 
     onMounted(async () => {
         await fetchData()
@@ -87,6 +88,7 @@
             const res = await axios.get(`${config.apiServer}/api/user/info`, {headers})
             name.value = res.data.result.name,
             level.value = res.data.result.level
+            profilePic.value = res.data.result.profilePic
         } catch (e) {
             Swal.fire({
                 icon: 'error',
